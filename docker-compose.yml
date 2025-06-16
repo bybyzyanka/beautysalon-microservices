@@ -1,0 +1,122 @@
+version: '3.8'
+services:
+  # Service Discovery
+  eureka-server:
+    build: ./eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - beauty-salon-network
+
+  # User Service (Authentication & Authorization)
+  user-service:
+    build: ./user-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      - eureka-server
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
+    volumes:
+      - ./user-service/db:/app/db
+    networks:
+      - beauty-salon-network
+
+  # Client Service
+  client-service:
+    build: ./client-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      - eureka-server
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
+    volumes:
+      - ./client-service/db:/app/db
+    networks:
+      - beauty-salon-network
+
+  # Facility Service
+  facility-service:
+    build: ./facility-service
+    ports:
+      - "8084:8084"
+    depends_on:
+      - eureka-server
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
+    volumes:
+      - ./facility-service/db:/app/db
+    networks:
+      - beauty-salon-network
+
+  # Master Service
+  master-service:
+    build: ./master-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - eureka-server
+      - user-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
+    volumes:
+      - ./master-service/db:/app/db
+    networks:
+      - beauty-salon-network
+
+  # Schedule Service
+  schedule-service:
+    build: ./schedule-service
+    ports:
+      - "8085:8085"
+    depends_on:
+      - eureka-server
+      - master-service
+      - client-service
+      - facility-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
+    volumes:
+      - ./schedule-service/db:/app/db
+    networks:
+      - beauty-salon-network
+
+  # Web Frontend Service
+  web-service:
+    build: ./web-service
+    ports:
+      - "8086:8086"
+    depends_on:
+      - eureka-server
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
+    networks:
+      - beauty-salon-network
+
+  # API Gateway (Must start last)
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - eureka-server
+      - web-service
+      - user-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
+    networks:
+      - beauty-salon-network
+
+networks:
+  beauty-salon-network:
+    driver: bridge

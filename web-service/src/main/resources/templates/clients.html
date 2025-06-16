@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Client Management</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script type="module" src="/js/clientsPage.js"></script>
+</head>
+<body>
+<div id="toast" class="toast hidden"></div>
+<div class="header">
+    <a th:href="@{/}" class="button">Schedule</a>
+    <a th:href="@{/masters}" class="button">Masters</a>
+    <a th:href="@{/clients}" class="button">Clients</a>
+    <a th:href="@{/facilities}" class="button">Facilities</a>
+    <div class="header-spacer"></div>
+    <form th:action="@{/logout}" method="post" style="margin: 0;">
+        <button type="submit" class="logout-btn">Sign Out</button>
+    </form>
+</div>
+<div class="container">
+    <div class="controls">
+        <button class="add-btn">+ Add client</button>
+        <div class="search-container">
+            <input type="text" class="search-bar" placeholder="Search clients...">
+            <button class="search-btn">Search</button>
+        </div>
+    </div>
+    <div class="client-list" id="client-list">
+    </div>
+    <div id="edit-client-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2 id="modal-title">Edit Client</h2>
+            <form id="edit-client-form">
+                <label for="client-name">Name:</label>
+                <input type="text" id="client-name" name="name" required>
+
+                <label for="client-phone">Phone:</label>
+                <input type="text" id="client-phone" name="phone" required>
+
+                <label for="client-email">Email:</label>
+                <input type="email" id="client-email" name="email" required>
+
+                <div class="form-actions">
+                    <button type="submit" id="save-client-btn">Save</button>
+                    <button type="button" id="delete-client-btn" class="delete-btn">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div id="pagination" class="pagination"></div>
+</body>
+</html>

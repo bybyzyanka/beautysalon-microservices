@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Facility Management</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script type="module" src="/js/facilitiesPage.js"></script>
+</head>
+<body>
+<div id="toast" class="toast hidden"></div>
+<div class="header">
+    <a th:href="@{/}" class="button">Schedule</a>
+    <a th:href="@{/masters}" class="button">Masters</a>
+    <a th:href="@{/clients}" class="button">Clients</a>
+    <a th:href="@{/facilities}" class="button">Facilities</a>
+    <div class="header-spacer"></div>
+    <form th:action="@{/logout}" method="post" style="margin: 0;">
+        <button type="submit" class="logout-btn">Sign Out</button>
+    </form>
+</div>
+<div class="container">
+    <div class="controls">
+        <button class="add-btn">+ Add Facility</button>
+        <div class="search-container">
+            <input type="text" class="search-bar" placeholder="Search facilities...">
+            <button class="search-btn">Search</button>
+        </div>
+    </div>
+    <div class="facility-list" id="facility-list">
+    </div>
+    <div id="edit-facility-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2 id="modal-title">Edit Facility</h2>
+            <form id="edit-facility-form">
+                <label for="facility-name">Name:</label>
+                <input type="text" id="facility-name" name="name" required>
+
+                <label for="facility-price">Price:</label>
+                <input type="number" id="facility-price" name="price" step="0.01" required>
+
+                <div class="form-actions">
+                    <button type="submit" id="save-facility-btn">Save</button>
+                    <button type="button" id="delete-facility-btn" class="delete-btn">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div id="pagination" class="pagination"></div>
+</body>
+</html>

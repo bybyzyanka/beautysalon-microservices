@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Day Schedule</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script type="module" src="/js/schedulePage.js"></script>
+</head>
+<body th:data-role="${role}">
+<div id="toast" class="toast hidden"></div>
+<div class="header">
+    <a th:href="@{/}" class="button">Schedule</a>
+    <a th:if="${role == 'ROLE_ADMIN'}" th:href="@{/masters}" class="button">Masters</a>
+    <a th:if="${role == 'ROLE_ADMIN'}" th:href="@{/clients}" class="button">Clients</a>
+    <a th:if="${role == 'ROLE_ADMIN'}" th:href="@{/facilities}" class="button">Facilities</a>
+    <div class="header-spacer"></div>
+    <form th:action="@{/logout}" method="post" style="margin: 0;">
+        <button type="submit" class="logout-btn">Sign Out</button>
+    </form>
+</div>
+<div class="container">
+    <div class="controls">
+        <button th:if="${role == 'ROLE_ADMIN'}" class="add-btn">+ Schedule facility</button>
+        <input type="date" id="day-picker">
+    </div>
+    <div id="schedule-container" class="schedule-container">
+        <div class="timeline">
+
+        </div>
+        <div class="schedule-list" id="schedule-list">
+
+        </div>
+    </div>
+    <div class="modal hidden" id="schedule-modal">
+        <div class="modal-content">
+            <span class="close-btn" id="close-schedule-modal">&times;</span>
+            <h2>Schedule Facility</h2>
+            <form id="schedule-form">
+                <label for="facility">Facility:</label>
+                <select id="facility" name="facility" required>
+                    <option value="" disabled selected>Select a facility</option>
+                </select>
+
+                <label for="client">Client:</label>
+                <select id="client" name="client" required>
+                    <option value="" disabled selected>Select a client</option>
+                </select>
+
+                <label for="master">Master:</label>
+                <select id="master" name="master" required>
+                    <option value="" disabled selected>Select a master</option>
+                </select>
+
+                <label for="date">Date:</label>
+                <input type="datetime-local" id="date" name="date" required>
+
+                <label for="duration">Duration (minutes):</label>
+                <input type="number" id="duration" name="duration" required>
+
+                <button type="submit" class="add-btn">Schedule</button>
+            </form>
+        </div>
+    </div>
+    <div class="modal hidden" id="edit-schedule-modal">
+        <div class="modal-content">
+            <span class="close-btn" id="close-edit-schedule-modal">&times;</span>
+            <h2>Edit Scheduled Facility</h2>
+            <form id="edit-schedule-form">
+                <label for="edit-facility">Facility:</label>
+                <select id="edit-facility" name="facility" required>
+                    <option value="" disabled selected>Select a facility</option>
+                </select>
+
+                <label for="edit-client">Client:</label>
+                <select id="edit-client" name="client" required>
+                    <option value="" disabled selected>Select a client</option>
+                </select>
+
+                <label for="edit-master">Master:</label>
+                <select id="edit-master" name="master" required>
+                    <option value="" disabled selected>Select a master</option>
+                </select>
+
+                <label for="edit-date">Date:</label>
+                <input type="datetime-local" id="edit-date" name="date" required>
+
+                <label for="edit-duration">Duration (minutes):</label>
+                <input type="number" id="edit-duration" name="duration" required>
+
+                <button type="submit" class="add-btn">Save Changes</button>
+                <button type="button" id="delete-schedule-btn" class="delete-btn">Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
