@@ -11,7 +11,7 @@ public class GatewayConfig {
     @Bean
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
         return builder.routes()
-                // API routes - forward all requests as-is
+                // API routes - forward all requests as-is (no auth filters)
                 .route("master-service-api", r -> r.path("/api/master/**")
                         .uri("lb://master-service"))
 
@@ -28,7 +28,7 @@ public class GatewayConfig {
                 .route("web-service-static", r -> r.path("/css/**", "/js/**", "/images/**", "/favicon.ico")
                         .uri("lb://web-service"))
 
-                // Web Service pages - all pages now publicly accessible
+                // Web Service pages - all pages publicly accessible
                 .route("web-service-pages", r -> r.path("/", "/schedule", "/clients", "/masters", "/facilities")
                         .uri("lb://web-service"))
 
