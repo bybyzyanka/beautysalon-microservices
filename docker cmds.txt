@@ -1,0 +1,7 @@
+# Clean and rebuild
+docker-compose down --volumes --rmi all
+docker-compose build --no-cache
+docker-compose up -d
+
+# Check logs
+docker-compose logs -f user-service

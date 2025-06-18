@@ -1,4 +1,4 @@
-package com.pjatk.beautysalon.gateway.config;
+package ua.nure.beautysalon.gateway.config;
 
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
@@ -11,12 +11,16 @@ public class GatewayConfig {
     @Bean
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
         return builder.routes()
-                // Web Service routes
+                // Web Service routes with preserveHostHeader to maintain original host info
                 .route("web-service-root", r -> r.path("/")
                         .filters(f -> f.preserveHostHeader())
                         .uri("lb://web-service"))
 
                 .route("web-service-login", r -> r.path("/login")
+                        .filters(f -> f.preserveHostHeader())
+                        .uri("lb://web-service"))
+
+                .route("web-service-logout", r -> r.path("/logout")
                         .filters(f -> f.preserveHostHeader())
                         .uri("lb://web-service"))
 

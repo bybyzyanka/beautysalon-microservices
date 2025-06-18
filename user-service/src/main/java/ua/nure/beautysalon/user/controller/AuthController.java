@@ -52,8 +52,9 @@ public class AuthController {
         return ResponseEntity.badRequest().body("Invalid token");
     }
 
+    // This endpoint should be accessible without authentication for UserDetailsService
     @GetMapping("/user/{email}")
-    @Operation(summary = "Get user by email", description = "Get user details by email")
+    @Operation(summary = "Get user by email", description = "Get user details by email (internal use)")
     public ResponseEntity<UserDTO> getUserByEmail(@PathVariable String email) {
         try {
             User user = userService.findByEmail(email);

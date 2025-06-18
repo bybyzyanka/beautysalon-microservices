@@ -1,4 +1,4 @@
-package com.pjatk.beautysalon.web.config;
+package ua.nure.beautysalon.web.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -9,7 +9,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+// Removed deprecated import
 
 @Configuration
 @RequiredArgsConstructor
@@ -21,6 +22,12 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         AccessDeniedHandlerImpl accessDeniedHandler = new AccessDeniedHandlerImpl();
         accessDeniedHandler.setErrorPage("/");
+
+        // Create a success handler that uses relative URLs
+        SimpleUrlAuthenticationSuccessHandler successHandler = new SimpleUrlAuthenticationSuccessHandler();
+        successHandler.setDefaultTargetUrl("/");
+        successHandler.setAlwaysUseDefaultTargetUrl(true);
+        successHandler.setUseReferer(false);
 
         http
                 .csrf(csrf -> csrf.disable())
@@ -36,15 +43,11 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/login")
                         .permitAll()
-                        .defaultSuccessUrl("/", true)
+                        .successHandler(successHandler)
                         .failureUrl("/login?error=true")
-                        // FORCE relative URLs
-                        .successHandler((request, response, authentication) -> {
-                            response.sendRedirect("/");
-                        })
                 )
                 .logout(logout -> logout
-                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                        .logoutUrl("/logout")
                         .logoutSuccessUrl("/login")
                         .permitAll())
                 .httpBasic(basic -> basic.disable());

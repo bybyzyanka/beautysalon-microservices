@@ -27,11 +27,28 @@ public class AdminUserBootstrap {
     public CommandLineRunner createAdminUser() {
         return args -> {
             try {
+                logger.info("Checking if admin user exists with email: {}", adminEmail);
                 userService.findByEmail(adminEmail);
                 logger.info("Admin user already exists with email: {}", adminEmail);
             } catch (IllegalArgumentException e) {
-                userService.signup(adminEmail, adminPassword, "ADMIN");
-                logger.info("Admin user created");
+                try {
+                    logger.info("Creating admin user with email: {}", adminEmail);
+                    userService.signup(adminEmail, adminPassword, "ADMIN");
+                    logger.info("Admin user created successfully with email: {}", adminEmail);
+
+                    // Verify the user was created
+                    try {
+                        userService.findByEmail(adminEmail);
+                        logger.info("Admin user verification successful");
+                    } catch (Exception verifyError) {
+                        logger.error("Admin user verification failed: {}", verifyError.getMessage());
+                    }
+
+                } catch (Exception createError) {
+                    logger.error("Failed to create admin user: {}", createError.getMessage(), createError);
+                }
+            } catch (Exception e) {
+                logger.error("Unexpected error during admin user bootstrap: {}", e.getMessage(), e);
             }
         };
     }

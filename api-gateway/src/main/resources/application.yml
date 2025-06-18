@@ -4,6 +4,23 @@ server:
 spring:
   application:
     name: api-gateway
+  cloud:
+    gateway:
+      # Add global configuration for proper routing
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+
+# Gateway configuration
+gateway:
+  external:
+    url: http://localhost:8080
+web-service:
+  internal:
+    url: http://web-service:8086
 
 eureka:
   client:
@@ -22,11 +39,24 @@ management:
       exposure:
         include: gateway
 
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.web: DEBUG
+
 ---
 spring:
   config:
     activate:
       on-profile: docker
+
+# Docker environment URLs
+gateway:
+  external:
+    url: http://localhost:8080  # Or use your Docker host IP
+web-service:
+  internal:
+    url: http://web-service:8086
 
 eureka:
   client:
