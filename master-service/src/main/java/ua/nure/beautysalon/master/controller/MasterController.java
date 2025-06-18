@@ -7,7 +7,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ua.nure.beautysalon.master.dto.MasterDTO;
-import ua.nure.beautysalon.master.dto.UserMasterDTO;
 import ua.nure.beautysalon.master.service.MasterService;
 
 @RestController
@@ -15,7 +14,7 @@ import ua.nure.beautysalon.master.service.MasterService;
 @RequestMapping("/api/master")
 @Tag(name = "Master", description = "Master management APIs")
 public class MasterController {
-    
+
     private final MasterService masterService;
 
     @GetMapping
@@ -49,15 +48,15 @@ public class MasterController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Update master", description = "Update an existing master")
-    public ResponseEntity<MasterDTO> updateMaster(@PathVariable Long id, @RequestBody UserMasterDTO userMasterDTO) {
-        return masterService.updateMaster(id, userMasterDTO)
+    public ResponseEntity<MasterDTO> updateMaster(@PathVariable Long id, @RequestBody MasterDTO masterDTO) {
+        return masterService.updateMaster(id, masterDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
     @Operation(summary = "Add master", description = "Create a new master")
-    public ResponseEntity<MasterDTO> addMaster(@RequestBody UserMasterDTO masterDTO) {
+    public ResponseEntity<MasterDTO> addMaster(@RequestBody MasterDTO masterDTO) {
         MasterDTO createdMaster = masterService.addMaster(masterDTO);
         return ResponseEntity.ok(createdMaster);
     }

@@ -1,24 +1,14 @@
 package ua.nure.beautysalon.web.controller;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
-@RequiredArgsConstructor
 public class PageController {
 
     @GetMapping("/")
-    public String index(Model model, Authentication authentication) {
-        if (authentication != null) {
-            String role = authentication.getAuthorities().stream()
-                    .map(grantedAuthority -> grantedAuthority.getAuthority())
-                    .findFirst()
-                    .orElse("ROLE_MASTER"); // Default role if none found
-            model.addAttribute("role", role);
-        }
+    public String index(Model model) {
         return "schedule";
     }
 
@@ -37,8 +27,8 @@ public class PageController {
         return "facilities";
     }
 
-    @GetMapping("/login")
-    public String login() {
-        return "login";
+    @GetMapping("/schedule")
+    public String schedule(Model model) {
+        return "schedule";
     }
 }

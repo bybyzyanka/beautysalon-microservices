@@ -5,21 +5,17 @@
     <link rel="stylesheet" href="/css/style.css">
     <script type="module" src="/js/schedulePage.js"></script>
 </head>
-<body th:data-role="${role}">
+<body>
 <div id="toast" class="toast hidden"></div>
 <div class="header">
     <a th:href="@{/}" class="button">Schedule</a>
-    <a th:if="${role == 'ROLE_ADMIN'}" th:href="@{/masters}" class="button">Masters</a>
-    <a th:if="${role == 'ROLE_ADMIN'}" th:href="@{/clients}" class="button">Clients</a>
-    <a th:if="${role == 'ROLE_ADMIN'}" th:href="@{/facilities}" class="button">Facilities</a>
-    <div class="header-spacer"></div>
-    <form th:action="@{/logout}" method="post" style="margin: 0;">
-        <button type="submit" class="logout-btn">Sign Out</button>
-    </form>
+    <a th:href="@{/masters}" class="button">Masters</a>
+    <a th:href="@{/clients}" class="button">Clients</a>
+    <a th:href="@{/facilities}" class="button">Facilities</a>
 </div>
 <div class="container">
     <div class="controls">
-        <button th:if="${role == 'ROLE_ADMIN'}" class="add-btn">+ Schedule facility</button>
+        <button class="add-btn">+ Schedule facility</button>
         <input type="date" id="day-picker">
     </div>
     <div id="schedule-container" class="schedule-container">

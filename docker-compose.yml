@@ -10,22 +10,6 @@ services:
     networks:
       - beauty-salon-network
 
-  # User Service (Authentication & Authorization)
-  user-service:
-    build: ./user-service
-    ports:
-      - "8081:8081"
-    depends_on:
-      - eureka-server
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
-    volumes:
-      - ./user-service/db:/app/db
-    networks:
-      - beauty-salon-network
-    restart: on-failure
-
   # Client Service
   client-service:
     build: ./client-service
@@ -65,7 +49,6 @@ services:
       - "8082:8082"
     depends_on:
       - eureka-server
-      - user-service
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
@@ -101,7 +84,6 @@ services:
       - "8086:8086"
     depends_on:
       - eureka-server
-      - user-service
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
@@ -117,7 +99,6 @@ services:
     depends_on:
       - eureka-server
       - web-service
-      - user-service
       - client-service
       - master-service
       - facility-service

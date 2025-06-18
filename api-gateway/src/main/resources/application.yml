@@ -1,68 +1,23 @@
-server:
-  port: 8080
-
-spring:
-  application:
-    name: api-gateway
-  cloud:
-    gateway:
-      # Add global configuration for proper routing
-      globalcors:
-        cors-configurations:
-          '[/**]':
-            allowedOrigins: "*"
-            allowedMethods: "*"
-            allowedHeaders: "*"
-
-# Gateway configuration
-gateway:
-  external:
-    url: http://localhost:8080
-web-service:
-  internal:
-    url: http://web-service:8086
-
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://eureka-server:8761/eureka/
     fetch-registry: true
     register-with-eureka: true
+    initial-instance-info-replication-interval-seconds: 5
+    instance-info-replication-interval-seconds: 5
   instance:
     prefer-ip-address: false
-    hostname: localhost
-    instance-id: ${spring.application.name}:${server.port}
+    hostname: web-service
+    instance-id: web-service:8086
+    lease-renewal-interval-in-seconds: 5
+    lease-expiration-duration-in-seconds: 10
 
 management:
   endpoints:
     web:
       exposure:
-        include: gateway
-
-logging:
-  level:
-    org.springframework.cloud.gateway: DEBUG
-    org.springframework.web: DEBUG
-
----
-spring:
-  config:
-    activate:
-      on-profile: docker
-
-# Docker environment URLs
-gateway:
-  external:
-    url: http://localhost:8080  # Or use your Docker host IP
-web-service:
-  internal:
-    url: http://web-service:8086
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://eureka-server:8761/eureka/
-  instance:
-    prefer-ip-address: false
-    hostname: api-gateway
-    instance-id: ${spring.application.name}:${server.port}
+        include: health,info
+  endpoint:
+    health:
+      show-details: always

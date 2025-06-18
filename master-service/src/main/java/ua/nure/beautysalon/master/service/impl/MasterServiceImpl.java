@@ -7,10 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ua.nure.beautysalon.master.dto.MasterDTO;
-import ua.nure.beautysalon.master.dto.UserMasterDTO;
 import ua.nure.beautysalon.master.entity.Master;
 import ua.nure.beautysalon.master.feign.ScheduleServiceClient;
-import ua.nure.beautysalon.master.feign.UserServiceClient;
 import ua.nure.beautysalon.master.mapper.MasterMapper;
 import ua.nure.beautysalon.master.repository.MasterRepository;
 import ua.nure.beautysalon.master.service.MasterService;
@@ -24,22 +22,15 @@ public class MasterServiceImpl implements MasterService {
 
     private final MasterRepository masterRepository;
     private final MasterMapper masterMapper;
-    private final UserServiceClient userServiceClient;
     private final ScheduleServiceClient scheduleServiceClient;
 
     @Override
-    public MasterDTO addMaster(UserMasterDTO masterDTO) {
-        if (masterRepository.existsByPhoneOrEmail(masterDTO.getPhone(), masterDTO.getEmail())) {
+    public MasterDTO addMaster(MasterDTO masterCreateDTO) {
+        if (masterRepository.existsByPhoneOrEmail(masterCreateDTO.getPhone(), masterCreateDTO.getEmail())) {
             throw new IllegalArgumentException("Master with this email or phone number already exists");
         }
 
-        try {
-            userServiceClient.signup(masterDTO.getEmail(), masterDTO.getPassword(), "MASTER");
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to create user account for master");
-        }
-
-        Master masterEntity = masterMapper.toEntity(masterDTO);
+        Master masterEntity = masterMapper.toEntity(masterCreateDTO);
         Master savedMaster = masterRepository.save(masterEntity);
         return masterMapper.toDTO(savedMaster);
     }
@@ -55,18 +46,12 @@ public class MasterServiceImpl implements MasterService {
     }
 
     @Override
-    public Optional<MasterDTO> updateMaster(Long id, UserMasterDTO masterDTO) {
+    public Optional<MasterDTO> updateMaster(Long id, MasterDTO masterCreateDTO) {
         return masterRepository.findById(id).map(existingMaster -> {
-            try {
-                userServiceClient.updatePassword(existingMaster.getEmail(), masterDTO.getPassword());
-            } catch (Exception e) {
-                // Log error but continue with update
-            }
-            
-            existingMaster.setName(masterDTO.getName());
-            existingMaster.setEmail(masterDTO.getEmail());
-            existingMaster.setPhone(masterDTO.getPhone());
-            existingMaster.setFacilityIds(masterMapper.toEntity(masterDTO).getFacilityIds());
+            existingMaster.setName(masterCreateDTO.getName());
+            existingMaster.setEmail(masterCreateDTO.getEmail());
+            existingMaster.setPhone(masterCreateDTO.getPhone());
+            existingMaster.setFacilityIds(masterMapper.toEntity(masterCreateDTO).getFacilityIds());
 
             masterRepository.save(existingMaster);
             return masterMapper.toDTO(existingMaster);

@@ -16,7 +16,6 @@ async function initializeMasterManagement() {
     const masterNameInput = document.getElementById("master-name");
     const masterPhoneInput = document.getElementById("master-phone");
     const masterEmailInput = document.getElementById("master-email");
-    const masterPasswordInput = document.getElementById("master-password");
     const editForm = document.getElementById("edit-master-form");
     const deleteMasterBtn = document.getElementById("delete-master-btn");
     const facilitiesContainer = document.getElementById("master-facilities");
@@ -66,7 +65,6 @@ async function initializeMasterManagement() {
         masterNameInput.value = "";
         masterPhoneInput.value = "";
         masterEmailInput.value = "";
-        masterPasswordInput.value = "";
         const checkboxes = facilitiesContainer.querySelectorAll("input[type='checkbox']");
         checkboxes.forEach(checkbox => {
             checkbox.checked = false;
@@ -118,7 +116,6 @@ async function initializeMasterManagement() {
             name: masterNameInput.value.trim(),
             phone: masterPhoneInput.value.trim(),
             email: masterEmailInput.value.trim(),
-            password: masterPasswordInput.value.trim(),
             facilities: selectedFacilities,
         };
 
@@ -145,7 +142,6 @@ async function initializeMasterManagement() {
                 masterNameInput.value = master.name || "";
                 masterPhoneInput.value = master.phone || "";
                 masterEmailInput.value = master.email || "";
-                masterPasswordInput.value = "";
 
                 const checkboxes = facilitiesContainer.querySelectorAll("input[type='checkbox']");
                 checkboxes.forEach(checkbox => {

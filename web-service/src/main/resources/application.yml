@@ -12,26 +12,6 @@ spring:
   web:
     resources:
       static-locations: classpath:/static/
-  security:
-    user:
-      name: admin
-      password: admin
-
-# Service URLs for internal communication
-user-service:
-  url: http://localhost:8081
-
-client-service:
-  url: http://localhost:8083
-
-master-service:
-  url: http://localhost:8082
-
-facility-service:
-  url: http://localhost:8084
-
-schedule-service:
-  url: http://localhost:8085
 
 eureka:
   client:
@@ -39,9 +19,14 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
     fetch-registry: true
     register-with-eureka: true
+    initial-instance-info-replication-interval-seconds: 5
+    instance-info-replication-interval-seconds: 5
   instance:
     prefer-ip-address: false
     hostname: localhost
+    instance-id: web-service:8086
+    lease-renewal-interval-in-seconds: 5
+    lease-expiration-duration-in-seconds: 10
 
 management:
   endpoints:
@@ -54,8 +39,8 @@ management:
 
 logging:
   level:
-    ua.nure.beautysalon.web: DEBUG
-    org.springframework.security: DEBUG
+    ua.nure.beautysalon.web: INFO
+    org.springframework.cloud.netflix.eureka: DEBUG
 
 ---
 spring:
@@ -63,31 +48,20 @@ spring:
     activate:
       on-profile: docker
 
-# Docker environment URLs
-user-service:
-  url: http://user-service:8081
-
-client-service:
-  url: http://client-service:8083
-
-master-service:
-  url: http://master-service:8082
-
-facility-service:
-  url: http://facility-service:8084
-
-schedule-service:
-  url: http://schedule-service:8085
-
 eureka:
   client:
     service-url:
       defaultZone: http://eureka-server:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+    initial-instance-info-replication-interval-seconds: 5
+    instance-info-replication-interval-seconds: 5
   instance:
     prefer-ip-address: false
-    hostname: ${spring.application.name}
-    lease-renewal-interval-in-seconds: 10
-    lease-expiration-duration-in-seconds: 30
+    hostname: web-service
+    instance-id: web-service:8086
+    lease-renewal-interval-in-seconds: 5
+    lease-expiration-duration-in-seconds: 10
 
 management:
   endpoints:
@@ -100,4 +74,5 @@ management:
 
 logging:
   level:
-    ua.nure.beautysalon.web: DEBUG
+    ua.nure.beautysalon.web: INFO
+    org.springframework.cloud.netflix.eureka: DEBUG

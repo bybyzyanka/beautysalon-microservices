@@ -1,8 +1,5 @@
 import {showToast} from "./ui.js";
 
-// Get user role from global variable or element on page
-let userRole = null;
-
 export const generateTimeline = (timeline) => {
     timeline.innerHTML = "";
     for (let hour = 0; hour < 24; hour++) {
@@ -106,12 +103,6 @@ function timeSlotOccupied(timeSlots, column, startMinutes, endMinutes) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Get user role from body or other element
-    const roleElement = document.body.getAttribute('data-role') ||
-        document.querySelector('[data-role]')?.getAttribute('data-role') ||
-        'ROLE_MASTER'; // fallback
-    userRole = roleElement;
-
     const scheduleModal = document.getElementById("schedule-modal");
     const openModalBtn = document.querySelector(".add-btn");
     const closeModalBtn = document.getElementById("close-schedule-modal");
@@ -125,13 +116,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const scheduleList = document.getElementById("schedule-list");
     const timeline = document.querySelector(".timeline");
 
-    // Disable editing features for non-admin users
-    if (userRole !== "ROLE_ADMIN") {
-        if (openModalBtn) {
-            openModalBtn.style.display = "none"; // Hide the "Add" button
-        }
-    }
-
     dayPicker.addEventListener("change", () => {
         const selectedDate = new Date(dayPicker.value);
         if (!isNaN(selectedDate)) {
@@ -144,7 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
     generateTimeline(timeline);
     fetchSchedule(today.toISOString(), scheduleList);
 
-    // Open the modal - check if button exists
+    // Open the modal
     if (openModalBtn) {
         openModalBtn.addEventListener("click", () => {
             scheduleModal.classList.remove("hidden");
@@ -206,16 +190,14 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Add click event to schedule blocks - only for admins
-    if (userRole === "ROLE_ADMIN") {
-        scheduleList.addEventListener("click", (event) => {
-            const block = event.target.closest(".schedule-block");
-            if (block) {
-                const scheduleId = block.dataset.id;
-                openEditModal(scheduleId);
-            }
-        });
-    }
+    // Add click event to schedule blocks
+    scheduleList.addEventListener("click", (event) => {
+        const block = event.target.closest(".schedule-block");
+        if (block) {
+            const scheduleId = block.dataset.id;
+            openEditModal(scheduleId);
+        }
+    });
 
     // Open the edit modal and populate fields
     const openEditModal = async (scheduleId) => {
@@ -294,21 +276,15 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Delete schedule functionality
+    // Delete schedule
     const deleteScheduleBtn = document.getElementById("delete-schedule-btn");
     if (deleteScheduleBtn) {
         deleteScheduleBtn.addEventListener("click", async () => {
-            const scheduleId = document.getElementById("edit-schedule-id")?.value;
-            if (!scheduleId) {
-                showToast("No schedule selected for deletion", "error");
-                return;
-            }
-
-            const confirmed = confirm("Are you sure you want to delete this scheduled facility?");
-            if (confirmed) {
+            const scheduleId = document.getElementById("edit-schedule-id").value;
+            if (confirm("Are you sure you want to delete this schedule?")) {
                 try {
-                    const response = await fetch(`/api/schedule/delete/${scheduleId}`, {
-                        method: "DELETE"
+                    const response = await fetch(`/api/schedule/${scheduleId}`, {
+                        method: "DELETE",
                     });
 
                     if (response.ok) {
@@ -328,69 +304,68 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
+
+    // Load dropdown options
+    loadDropdownOptions();
 });
 
-document.addEventListener("DOMContentLoaded", async () => {
-    const clientSelectAdd = document.getElementById("client");
-    const masterSelectAdd = document.getElementById("master");
-    const facilitySelectAdd = document.getElementById("facility");
+async function loadDropdownOptions() {
+    try {
+        // Load facilities
+        const facilitiesResponse = await fetch("/api/facility?page=0&size=1000");
+        if (facilitiesResponse.ok) {
+            const facilitiesData = await facilitiesResponse.json();
+            const facilities = facilitiesData.content || facilitiesData;
 
-    const clientSelectEdit = document.getElementById("edit-client");
-    const masterSelectEdit = document.getElementById("edit-master");
-    const facilitySelectEdit = document.getElementById("edit-facility");
-
-    // Helper function to populate dropdowns
-    const populateDropdown = async (url, selectAdd, selectEdit, labelFormatter) => {
-        try {
-            const response = await fetch(`/api${url}`);
-            if (response.ok) {
-                const data = await response.json();
-                if (data.content && Array.isArray(data.content)) {
-                    data.content.forEach(item => {
-                        if (selectAdd) {
-                            const optionAdd = document.createElement("option");
-                            optionAdd.value = item.id;
-                            optionAdd.textContent = labelFormatter(item);
-                            selectAdd.appendChild(optionAdd);
-                        }
-
-                        if (selectEdit) {
-                            const optionEdit = document.createElement("option");
-                            optionEdit.value = item.id;
-                            optionEdit.textContent = labelFormatter(item);
-                            selectEdit.appendChild(optionEdit);
-                        }
-                    });
-                }
-            } else {
-                console.error(`Failed to fetch data from ${url}`);
-            }
-        } catch (error) {
-            console.error(`Error fetching data from ${url}:`, error);
+            const facilitySelects = document.querySelectorAll("#facility, #edit-facility");
+            facilitySelects.forEach(select => {
+                select.innerHTML = '<option value="" disabled selected>Select a facility</option>';
+                facilities.forEach(facility => {
+                    const option = document.createElement("option");
+                    option.value = facility.id;
+                    option.textContent = facility.name;
+                    select.appendChild(option);
+                });
+            });
         }
-    };
 
-    // Populate clients
-    await populateDropdown(
-        "/client?size=1000",
-        clientSelectAdd,
-        clientSelectEdit,
-        client => `${client.name} (${client.email})`
-    );
+        // Load clients
+        const clientsResponse = await fetch("/api/client?page=0&size=1000");
+        if (clientsResponse.ok) {
+            const clientsData = await clientsResponse.json();
+            const clients = clientsData.content || clientsData;
 
-    // Populate masters
-    await populateDropdown(
-        "/master?size=1000",
-        masterSelectAdd,
-        masterSelectEdit,
-        master => `${master.name} (${master.email})`
-    );
+            const clientSelects = document.querySelectorAll("#client, #edit-client");
+            clientSelects.forEach(select => {
+                select.innerHTML = '<option value="" disabled selected>Select a client</option>';
+                clients.forEach(client => {
+                    const option = document.createElement("option");
+                    option.value = client.id;
+                    option.textContent = `${client.name} (${client.email})`;
+                    select.appendChild(option);
+                });
+            });
+        }
 
-    // Populate facilities
-    await populateDropdown(
-        "/facility?size=1000",
-        facilitySelectAdd,
-        facilitySelectEdit,
-        facility => facility.name
-    );
-});
+        // Load masters
+        const mastersResponse = await fetch("/api/master?page=0&size=1000");
+        if (mastersResponse.ok) {
+            const mastersData = await mastersResponse.json();
+            const masters = mastersData.content || mastersData;
+
+            const masterSelects = document.querySelectorAll("#master, #edit-master");
+            masterSelects.forEach(select => {
+                select.innerHTML = '<option value="" disabled selected>Select a master</option>';
+                masters.forEach(master => {
+                    const option = document.createElement("option");
+                    option.value = master.id;
+                    option.textContent = `${master.name} (${master.email})`;
+                    select.appendChild(option);
+                });
+            });
+        }
+    } catch (error) {
+        console.error("Error loading dropdown options:", error);
+        showToast("Failed to load dropdown options", "error");
+    }
+}

@@ -12,9 +12,6 @@ public class GatewayConfig {
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
         return builder.routes()
                 // API routes - forward all requests as-is
-                .route("user-service-api", r -> r.path("/api/auth/**")
-                        .uri("lb://user-service"))
-
                 .route("master-service-api", r -> r.path("/api/master/**")
                         .uri("lb://master-service"))
 
@@ -27,20 +24,11 @@ public class GatewayConfig {
                 .route("schedule-service-api", r -> r.path("/api/schedule/**")
                         .uri("lb://schedule-service"))
 
-                // Web Service routes
+                // Web Service routes - static resources
                 .route("web-service-static", r -> r.path("/css/**", "/js/**", "/images/**", "/favicon.ico")
                         .uri("lb://web-service"))
 
-                .route("web-service-login", r -> r.path("/login")
-                        .uri("lb://web-service"))
-
-                .route("web-service-logout", r -> r.path("/logout")
-                        .uri("lb://web-service"))
-
-                .route("web-service-test", r -> r.path("/test/**")
-                        .uri("lb://web-service"))
-
-                // Web Service protected pages
+                // Web Service pages - all pages now publicly accessible
                 .route("web-service-pages", r -> r.path("/", "/schedule", "/clients", "/masters", "/facilities")
                         .uri("lb://web-service"))
 
