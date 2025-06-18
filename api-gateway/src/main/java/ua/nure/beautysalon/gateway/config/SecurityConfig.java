@@ -15,7 +15,9 @@ public class SecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .authorizeExchange(exchanges -> exchanges
-                        .anyExchange().permitAll()  // Let Web Service handle auth
+                        // Allow all requests to pass through - let individual services handle auth
+                        .pathMatchers("/login", "/api/auth/**", "/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
+                        .anyExchange().permitAll()
                 )
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())

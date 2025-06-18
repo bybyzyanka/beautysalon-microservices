@@ -4,6 +4,34 @@ server:
 spring:
   application:
     name: web-service
+  thymeleaf:
+    mode: HTML
+    encoding: UTF-8
+    content-type: text/html
+    cache: false
+  web:
+    resources:
+      static-locations: classpath:/static/
+  security:
+    user:
+      name: admin
+      password: admin
+
+# Service URLs for internal communication
+user-service:
+  url: http://localhost:8081
+
+client-service:
+  url: http://localhost:8083
+
+master-service:
+  url: http://localhost:8082
+
+facility-service:
+  url: http://localhost:8084
+
+schedule-service:
+  url: http://localhost:8085
 
 eureka:
   client:
@@ -14,9 +42,6 @@ eureka:
   instance:
     prefer-ip-address: false
     hostname: localhost
-    instance-id: ${spring.application.name}:${server.port}
-    lease-renewal-interval-in-seconds: 10
-    lease-expiration-duration-in-seconds: 30
 
 management:
   endpoints:
@@ -38,16 +63,29 @@ spring:
     activate:
       on-profile: docker
 
+# Docker environment URLs
+user-service:
+  url: http://user-service:8081
+
+client-service:
+  url: http://client-service:8083
+
+master-service:
+  url: http://master-service:8082
+
+facility-service:
+  url: http://facility-service:8084
+
+schedule-service:
+  url: http://schedule-service:8085
+
 eureka:
   client:
     service-url:
       defaultZone: http://eureka-server:8761/eureka/
-    fetch-registry: true
-    register-with-eureka: true
   instance:
     prefer-ip-address: false
-    hostname: web-service
-    instance-id: ${spring.application.name}:${server.port}
+    hostname: ${spring.application.name}
     lease-renewal-interval-in-seconds: 10
     lease-expiration-duration-in-seconds: 30
 
@@ -63,4 +101,3 @@ management:
 logging:
   level:
     ua.nure.beautysalon.web: DEBUG
-    org.springframework.security: DEBUG

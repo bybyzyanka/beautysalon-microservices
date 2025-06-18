@@ -3,92 +3,62 @@ package ua.nure.beautysalon.web.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.AccessDeniedHandlerImpl;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
+@EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final UserDetailsService userDetailsService;
-    private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new DebugBCryptPasswordEncoder();
-    }
-
-    @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        return new DebugDaoAuthenticationProvider(userDetailsService, passwordEncoder());
-    }
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        AccessDeniedHandlerImpl accessDeniedHandler = new AccessDeniedHandlerImpl();
-        accessDeniedHandler.setErrorPage("/");
-
-        // Create a success handler that uses relative URLs
-        SimpleUrlAuthenticationSuccessHandler successHandler = new SimpleUrlAuthenticationSuccessHandler();
-        successHandler.setDefaultTargetUrl("/");
-        successHandler.setAlwaysUseDefaultTargetUrl(true);
-        successHandler.setUseReferer(false);
-
         http
-                .authenticationProvider(authenticationProvider())
                 .csrf(csrf -> csrf.disable())
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                        .maximumSessions(1)
-                        .maxSessionsPreventsLogin(false)
-                )
                 .authorizeHttpRequests(auth -> auth
-                        // Allow static resources and login page
-                        .requestMatchers("/css/**", "/js/**", "/images/**", "/login").permitAll()
-                        // Allow test endpoints for development
+                        // Public endpoints
+                        .requestMatchers("/login", "/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/test/**").permitAll()
-                        // API endpoints should pass through to gateway routing
-                        .requestMatchers("/api/**").permitAll()
-                        // Actuator endpoints
-                        .requestMatchers("/actuator/**").permitAll()
-                        // Protected pages - accessible by both ADMIN and MASTER
-                        .requestMatchers("/", "/schedule").hasAnyRole("ADMIN", "MASTER")
-                        // Admin-only pages
-                        .requestMatchers("/facilities", "/clients", "/masters").hasRole("ADMIN")
+                        .requestMatchers("/h2-console/**").permitAll()
+                        // Protected endpoints
                         .anyRequest().authenticated()
                 )
-                .exceptionHandling(exception -> exception
-                        .accessDeniedHandler(accessDeniedHandler)
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.sendRedirect("/login?error=access_denied");
+                        })
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .permitAll()
-                        .successHandler(successHandler)
+                        .loginProcessingUrl("/login")
+                        .defaultSuccessUrl("/", true)
                         .failureUrl("/login?error=true")
-                        .usernameParameter("username") // Make sure this matches your form
-                        .passwordParameter("password") // Make sure this matches your form
-                        .defaultSuccessUrl("/", true) // Force redirect to home page
+                        .permitAll()
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login")
-                        .permitAll())
-                .httpBasic(basic -> basic.disable());
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                        .logoutSuccessUrl("/login?logout=true")
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID", "JWT_TOKEN")
+                        .permitAll()
+                )
+                .sessionManagement(session -> session
+                        .maximumSessions(1)
+                        .maxSessionsPreventsLogin(false)
+                )
+                .headers(headers -> headers
+                        .frameOptions().sameOrigin() // For H2 console
+                )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-        return configuration.getAuthenticationManager();
     }
 }

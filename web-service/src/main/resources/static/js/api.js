@@ -89,3 +89,4 @@ export async function fetchPageableData(path, searchQuery = "", page = 0, size =
         throw error;
     }
 }
+
