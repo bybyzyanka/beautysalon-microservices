@@ -1,8 +1,8 @@
-// API utility functions - simplified without authentication
+// API utility functions with improved error handling
 
 const BASE_URL = '/api';
 
-// Generic fetch wrapper
+// Generic fetch wrapper with better error handling
 async function fetchWithErrorHandling(url, options = {}) {
     try {
         const response = await fetch(url, {
@@ -15,24 +15,56 @@ async function fetchWithErrorHandling(url, options = {}) {
 
         if (!response.ok) {
             let errorMessage = `HTTP ${response.status}`;
+
             try {
                 const errorData = await response.json();
-                errorMessage = errorData.message || errorData.error || errorMessage;
-            } catch (e) {
-                // If response is not JSON, use status text
-                errorMessage = response.statusText || errorMessage;
+
+                // Handle different error response formats
+                if (errorData.error) {
+                    errorMessage = errorData.error;
+                } else if (errorData.message) {
+                    errorMessage = errorData.message;
+                } else if (errorData.details) {
+                    errorMessage = errorData.details;
+                } else if (typeof errorData === 'string') {
+                    errorMessage = errorData;
+                } else {
+                    errorMessage = `${response.status} ${response.statusText}`;
+                }
+            } catch (parseError) {
+                // If response is not JSON, try to get text
+                try {
+                    const errorText = await response.text();
+                    if (errorText) {
+                        errorMessage = errorText;
+                    } else {
+                        errorMessage = `${response.status} ${response.statusText}`;
+                    }
+                } catch (textError) {
+                    errorMessage = `${response.status} ${response.statusText}`;
+                }
             }
-            throw new Error(errorMessage);
+
+            const error = new Error(errorMessage);
+            error.status = response.status;
+            throw error;
         }
 
         // Handle empty responses
         const contentType = response.headers.get('content-type');
         if (contentType && contentType.includes('application/json')) {
-            return await response.json();
+            const text = await response.text();
+            return text ? JSON.parse(text) : null;
         }
         return null;
     } catch (error) {
         console.error('API Error:', error);
+
+        // Handle network errors
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
+            error.message = 'Network error: Unable to connect to server';
+        }
+
         throw error;
     }
 }

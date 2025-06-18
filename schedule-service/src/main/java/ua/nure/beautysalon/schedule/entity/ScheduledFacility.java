@@ -2,6 +2,8 @@ package ua.nure.beautysalon.schedule.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Max;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,23 +19,25 @@ public class ScheduledFacility {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull(message = "Date cannot be null")
+    @NotNull(message = "Appointment date is required")
     @Column(nullable = false)
     private LocalDateTime date;
 
-    @NotNull(message = "Duration cannot be null")
+    @NotNull(message = "Duration is required")
+    @Positive(message = "Duration must be positive")
+    @Max(value = 1440, message = "Duration cannot exceed 24 hours (1440 minutes)")
     @Column(nullable = false)
     private Long duration;
 
-    @NotNull(message = "Facility cannot be null")
+    @NotNull(message = "Facility is required")
     @Column(name = "facility_id", nullable = false)
     private Long facilityId;
 
-    @NotNull(message = "Client cannot be null")
+    @NotNull(message = "Client is required")
     @Column(name = "client_id", nullable = false)
     private Long clientId;
 
-    @NotNull(message = "Master cannot be null")
+    @NotNull(message = "Master is required")
     @Column(name = "master_id", nullable = false)
     private Long masterId;
 }

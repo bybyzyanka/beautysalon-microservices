@@ -3,8 +3,8 @@ package ua.nure.beautysalon.master.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,18 +19,20 @@ public class Master {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Name cannot be blank")
-    @Pattern(regexp = "^[a-zA-Z\\s'-]+$", message = "Name must contain only letters and spaces")
+    @NotBlank(message = "Master name is required")
+    @Size(min = 2, max = 100, message = "Master name must be between 2 and 100 characters")
+    @Pattern(regexp = "^[a-zA-ZÀ-ÿ\\s'-]+$", message = "Master name can only contain letters, spaces, hyphens, and apostrophes")
     @Column(nullable = false)
     private String name;
 
-    @NotBlank(message = "Email cannot be blank")
-    @Email(message = "Invalid email format")
+    @NotBlank(message = "Master email is required")
+    @Email(message = "Please provide a valid email address for the master")
+    @Size(max = 255, message = "Master email cannot be longer than 255 characters")
     @Column(nullable = false, unique = true)
     private String email;
 
-    @NotBlank(message = "Phone number cannot be blank")
-    @Pattern(regexp = "\\+?[0-9]{7,15}", message = "Phone number must be valid")
+    @NotBlank(message = "Master phone number is required")
+    @Pattern(regexp = "^\\+?[0-9\\s\\-()]{7,20}$", message = "Please provide a valid phone number for the master")
     @Column(nullable = false, unique = true)
     private String phone;
 
