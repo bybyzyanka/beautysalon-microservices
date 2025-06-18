@@ -14,25 +14,36 @@ spring:
   application:
     name: eureka-server
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
 ---
 spring:
   config:
     activate:
       on-profile: docker
+
 eureka:
   client:
     service-url:
       defaultZone: http://eureka-server:8761/eureka/
+    register-with-eureka: false
+    fetch-registry: false
   instance:
-      prefer-ip-address: false
-      hostname: ${spring.application.name}
-      lease-renewal-interval-in-seconds: 10
-      lease-expiration-duration-in-seconds: 30
+    prefer-ip-address: false
+    hostname: eureka-server
+
 management:
   endpoints:
     web:
       exposure:
-        include: health
+        include: health,info
   endpoint:
     health:
       show-details: always

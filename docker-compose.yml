@@ -24,6 +24,7 @@ services:
       - ./user-service/db:/app/db
     networks:
       - beauty-salon-network
+    restart: on-failure
 
   # Client Service
   client-service:
@@ -39,6 +40,7 @@ services:
       - ./client-service/db:/app/db
     networks:
       - beauty-salon-network
+    restart: on-failure
 
   # Facility Service
   facility-service:
@@ -54,6 +56,7 @@ services:
       - ./facility-service/db:/app/db
     networks:
       - beauty-salon-network
+    restart: on-failure
 
   # Master Service
   master-service:
@@ -70,6 +73,7 @@ services:
       - ./master-service/db:/app/db
     networks:
       - beauty-salon-network
+    restart: on-failure
 
   # Schedule Service
   schedule-service:
@@ -88,6 +92,7 @@ services:
       - ./schedule-service/db:/app/db
     networks:
       - beauty-salon-network
+    restart: on-failure
 
   # Web Frontend Service
   web-service:
@@ -96,11 +101,13 @@ services:
       - "8086:8086"
     depends_on:
       - eureka-server
+      - user-service
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
     networks:
       - beauty-salon-network
+    restart: on-failure
 
   # API Gateway (Must start last)
   api-gateway:
@@ -111,11 +118,16 @@ services:
       - eureka-server
       - web-service
       - user-service
+      - client-service
+      - master-service
+      - facility-service
+      - schedule-service
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka
     networks:
       - beauty-salon-network
+    restart: on-failure
 
 networks:
   beauty-salon-network:

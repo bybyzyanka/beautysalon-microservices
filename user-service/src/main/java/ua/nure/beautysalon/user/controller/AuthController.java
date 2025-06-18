@@ -23,6 +23,7 @@ public class AuthController {
     @Operation(summary = "User login", description = "Authenticate user and return JWT token")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
         LoginResponse response = userService.login(loginRequest);
+        System.out.println("Login response: " + response.getEmail() + " " + response.getToken() + " " + response.getToken());
         return ResponseEntity.ok(response);
     }
 

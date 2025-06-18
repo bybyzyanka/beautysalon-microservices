@@ -15,6 +15,22 @@ eureka:
     prefer-ip-address: false
     hostname: localhost
     instance-id: ${spring.application.name}:${server.port}
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    ua.nure.beautysalon.web: DEBUG
+    org.springframework.security: DEBUG
 
 ---
 spring:
@@ -26,7 +42,25 @@ eureka:
   client:
     service-url:
       defaultZone: http://eureka-server:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
   instance:
     prefer-ip-address: false
     hostname: web-service
     instance-id: ${spring.application.name}:${server.port}
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    ua.nure.beautysalon.web: DEBUG
+    org.springframework.security: DEBUG

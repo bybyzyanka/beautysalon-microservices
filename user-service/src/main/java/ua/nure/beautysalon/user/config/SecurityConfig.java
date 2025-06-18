@@ -15,19 +15,14 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // Allow access to authentication endpoints
-                        .requestMatchers("/api/auth/login", "/api/auth/signup", "/api/auth/validate", "/api/auth/user/**", "/api/auth/password").permitAll()
-                        // Allow access to H2 console for development
-                        .requestMatchers("/h2-console/**").permitAll()
-                        // Allow access to actuator endpoints
-                        .requestMatchers("/actuator/**").permitAll()
-                        // Require authentication for all other requests
-                        .anyRequest().authenticated()
+                        // Allow access to all endpoints without authentication
+                        .anyRequest().permitAll()
                 )
                 .headers(headers -> headers
                         // Allow H2 console to work in frames
                         .frameOptions(frameOptions -> frameOptions.sameOrigin())
                 )
+                // Disable all forms of authentication
                 .httpBasic(basic -> basic.disable())
                 .formLogin(form -> form.disable());
 
